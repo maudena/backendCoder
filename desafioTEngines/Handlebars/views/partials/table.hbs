@@ -1,0 +1,29 @@
+<div>
+    <a href="/">Regresar al Home</a>
+</div>
+
+<table class="table">
+    <thead>
+        <th scope="col">Producto</th>
+        <th scope="col">Precio</th>
+        <th scope="col">Cantidad</th>
+    </thead>
+    <tbody>
+
+        {{#if data.length}}
+            {{#each data}}
+            <tr>
+                <td>{{item}}</td>
+                <td>{{precio}}</td>
+                <td>{{cantidad}}</td>
+            </tr>      
+            {{/each}}
+        {{else}}
+        <tr>
+            <td colspan="3">No hay datos</td>
+        </tr>
+        {{/if}}
+
+    </tbody>
+</table>
+<br>

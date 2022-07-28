@@ -1,0 +1,18 @@
+form(action="/productos" method="post")
+    div.mb-3
+    label.form-label(for="item") Producto
+    input.form-control(type="text" id="item" name="item")
+  
+    div.mb-3
+    label.form-label(for="precio") Precio
+    input.form-control(type="text" id="precio" name="precio")
+
+    div.mb-3
+    label.form-label(for="cantidad") Cantidad
+    input.form-control(type="text" id="cantidad" name="cantidad")
+ 
+
+    button(type="submit" class="btn btn-primary") Guardar
+br
+div
+    a(href="/productos") Lista de Productos
