@@ -12,8 +12,6 @@ routerCart.get("/carrito", (req, res) => {
 routerCart.get("/carrito/:id/productos", (req, res) => {
   const { id } = req.params;
   const cart = dataCart.findId(parseInt(id));
-  const datos = new dataCart.Contenedor("carrito");
-  datos.save(dataCart.carts);
   res.json(cart.productos);
 });
 

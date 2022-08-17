@@ -11,3 +11,18 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}))
 app.use("/api", routerProductos)
 app.use("/api", routerCart)
+
+app.use((req,res,next)=>{
+    const err = new Error("Not Found")
+    err.status = 404;
+    next(err)
+})
+app.use((err, req, res, next) =>{
+    res.status(err.status || 500)
+    res.send({
+        error:{
+            status: err.status || 500,
+            message: err.message,
+        }
+    })
+})

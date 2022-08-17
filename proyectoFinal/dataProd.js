@@ -18,7 +18,7 @@ class Contenedor {
 
     async save(objeto) {
         try {
-            if (fs.existsSync(this.fileName)) {
+            if (fs.existsSync(this.fileName + '.txt')) {
                 const data = await fs.promises.readFile(this.fileName);
                 const array = JSON.parse(data);
                 array.push(objeto);
