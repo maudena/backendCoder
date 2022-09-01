@@ -1,66 +1,45 @@
-const { json } = require("express");
-const express = require("express");
+import { json } from "express";
+import express from 'express';
 const { Router } = express;
 const routerCart = Router();
-const dataCart = require("../dataCart");
-const productos = require("../dataProd");
 
-routerCart.get("/carrito", (req, res) => {
-  res.json(dataCart.carts);
+import {carritosDao as carritosApi} from "../src/daos/index.js"
+import {productosDao as productosApi} from "../src/daos/index.js"
+
+routerCart.get("/carrito", async (req, res) => {
+  res.json((await carritosApi.listarAll()).map(c => c.id));
 });
 
-routerCart.get("/carrito/:id/productos", (req, res) => {
-  const { id } = req.params;
-  const cart = dataCart.findId(parseInt(id));
-  res.json(cart.productos);
+routerCart.get("/carrito/:id/productos", async (req, res) => {
+  const carrito = carritosApi.listar(req.params.id)
+  res.json(carrito)
 });
 
-routerCart.post("/carrito", (req, res) => {
-  const newCart = new dataCart.Cart();
-  newCart.addToCarts();
-  const datos = new dataCart.Contenedor("carrito");
-  datos.save(dataCart.carts);
-  res.json(newCart.id);
+routerCart.post("/carrito", async (req, res) => {
+  res.json(await carritosApi.guardar());
 });
 
-routerCart.delete("/carrito/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const items = dataCart.carts;
-  if (id > items.length || id == 0) {
-    res.json("error: carrito no encontrado");
-  } else {
-    items.forEach((item, i) => {
-      if (item.id === id) items.splice(i, 1);
-    });
-    const datos = new dataCart.Contenedor("carrito");
-    datos.save(dataCart.carts);
-    res.status(204).end();
+routerCart.delete("/carrito/:id", async (req, res) => {
+  res.json(await carritosApi.delete(req.params.id))
+});
+
+routerCart.delete("/carrito/:id/productos/:id_prod", async (req, res) => {
+  const carrito = await carritosApi.listar(req.params.id)
+  const index = carrito.productos.findIndex(p => p.id == req.params.id_prod)
+  if(index != -1){
+    carrito.productos.splice(index, 1)
+    await carritosApi.update(carrito)
   }
+  res.end();
 });
 
-routerCart.delete("/carrito/:id/productos/:id_prod", (req, res) => {
-  const idCart = Number(req.params.id);
-  const idProd = Number(req.params.id_prod);
-  const cart = dataCart.findId(idCart);
+routerCart.post("/carrito/:id/productos/:id_prod", async (req, res) => {
+  const carrito = await carritosApi.listar(req.params.id)
+  const producto = await productosApi.listar(req.params.id_prod)
+  carrito.productos.push(producto)
+  await carritosApi.update(carrito)
 
-  cart.productos.forEach((item, i) => {
-    if (item.id === idProd) cart.productos.splice(i, 1);
-  });
-  const datos = new dataCart.Contenedor("carrito")
-  datos.save(dataCart.carts)
-  res.status(204).end();
+  res.json(carrito);
 });
 
-routerCart.post("/carrito/:id/productos", (req, res) => {
-  const { id } = req.params;
-  const item = productos.findId(parseInt(id));
-  const carts = dataCart.carts;
-  carts[0].productos.push(item);
-  item.inCart = true;
-  const datos = new dataCart.Contenedor("carrito")
-  datos.save(dataCart.carts)
-  res.json(item);
-});
-
-
-module.exports = routerCart;
+export default routerCart;
