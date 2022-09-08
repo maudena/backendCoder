@@ -21,7 +21,7 @@ socket.on("productos", (data) => {
 });
 
 function getTable(data) {
-  return fetch("/views/partials/table.hbs")
+  return fetch("/views/table.hbs")
     .then((res) => res.text())
     .then((plantilla) => {
       const template = Handlebars.compile(plantilla);
@@ -52,3 +52,5 @@ const formMensaje = document.getElementById("containerMsj")
         }).join("<br>")
         document.getElementById("containerMsjs").innerHTML = html;
     })
+
+module.exports = { getTable }

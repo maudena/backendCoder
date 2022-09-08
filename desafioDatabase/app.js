@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const {faker} = require("@faker-js/faker")
 const handlebars = require("express-handlebars");
 const {Server: HttpServer} = require("http");
 const {Server: Socket} = require("socket.io");
@@ -14,6 +15,7 @@ const data = []
 const mensajes = []
 
 createTables()
+
 app.engine(
   "hbs",
   handlebars.engine({
@@ -28,8 +30,6 @@ app.set("views", "./views");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./public"));
-
-
 
 
 io.on('connection', (socket) => {
@@ -56,6 +56,20 @@ io.on('connection', (socket) => {
     io.sockets.emit("mensajes", await mensajes)
   })
 
+})
+
+app.get("/api/productos-test", (req,res) =>{
+  const datos = [];
+  for (let i = 0; i < 5; i++) {
+    const dato = {
+      producto: faker.commerce.productName(),
+      descripcion: faker.commerce.productDescription(),
+      precio: faker.commerce.price()
+    }
+      datos.push(dato);
+    }
+    
+  res.status(200).json(datos)
 })
 
 const server = httpServer.listen(8080, () => {
