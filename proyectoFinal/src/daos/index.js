@@ -3,27 +3,41 @@ let carritosDao;
 
 import { ProdMemoria } from "./productos/ProdMemoria.js";
 import CartMemoria from "./carritos/CartMemoria.js";
+import ProdArchivo from "./productos/ProdArchivo.js";
+import CartArchivo from "./carritos/CartArchivo.js"
+import ProdMongoDB from "./productos/ProdMongoDB.js";
+import CartMongoDB from "./carritos/CartMongoDB.js";
+import ProdFirebase from "./productos/ProdFirebase.js";
+import CartFirebase from "./carritos/CartFirebase.js";
 
-switch (process.env.PERS) {
+
+switch ("mongo") {
   case "json":
-    const prodArchivo = await import("./productos/ProdArchivo.js");
-    const cartArchivo = await import("./carritos/CartArchivo.js");
 
-    productosDao = new prodArchivo();
-    carritosDao = new cartArchivo();
+    productosDao = new ProdArchivo
+    carritosDao = new CartArchivo
+
     break;
+
   case "firebase":
-    break;
-  case "mongo":
-    const prodMongo = await import("./productos/ProdMongoDB.js");
-    const cartMongo = await import("./carritos/CartMongoDB.js");
 
-    productosDao = new prodMongo();
-    carritosDao = new cartMongo();
+    productosDao = new ProdFirebase
+    carritosDao = new CartFirebase
+
     break;
+
+  case "mongo":
+
+    productosDao = new ProdMongoDB;
+    carritosDao = new CartMongoDB;
+
+    break;
+
   default:
+
     productosDao = new ProdMemoria;
     carritosDao = new CartMemoria;
+
     break;
 }
 

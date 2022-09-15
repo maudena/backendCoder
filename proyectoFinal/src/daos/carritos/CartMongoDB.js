@@ -1,4 +1,4 @@
-import ContenedorMongoDB from "../../contenedores/ContenedorMongoDB";
+import ContenedorMongoDB from "../../contenedores/ContenedorMongoDB.js";
 
 class CartMongoDB extends ContenedorMongoDB{
     constructor(){

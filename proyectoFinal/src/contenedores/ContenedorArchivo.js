@@ -1,6 +1,6 @@
 import { json } from 'express'
 import { promises as fs } from 'fs'
-
+import config from '../../config.js'
 
 class ContenedorArchivo{
     constructor(ruta){
@@ -43,7 +43,7 @@ class ContenedorArchivo{
         }
     }
 
-    async update(elem){
+    async actualizar(elem){
         const objs = await this.listarAll()
         const index = objs.findIndex(x => x.id == elem.id)
 
@@ -62,7 +62,7 @@ class ContenedorArchivo{
 
     async delete(id){
         const objs = await this.listarAll()
-        const index = objs.findIndex(x => x.id == elem.id)
+        const index = objs.findIndex(x => x.id == id)
 
         if(index == -1){
             throw new Error(`No se encontro el id : ${id}`)

@@ -1,7 +1,6 @@
-import ContenedorMongoDB from "../../contenedores/ContenedorMongoDB.js";
+import ContenedorFirebase from "../../contenedores/ContenedorFirebase.js";
 
-
-class ProdMongoDB extends ContenedorMongoDB {
+class ProdFirebase extends ContenedorFirebase {
   constructor() {
     super("productos", {
       title: { type: String, required: true },
@@ -11,4 +10,4 @@ class ProdMongoDB extends ContenedorMongoDB {
   }
 }
 
-export default ProdMongoDB;
+export default ProdFirebase;

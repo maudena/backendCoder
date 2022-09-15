@@ -2,9 +2,12 @@ import express from 'express';
 import routerProductos from "./router/productos.js";
 import routerCart from "./router/cart.js"
 import dotenv from "dotenv"
+import config from './config.js';
+import mongoose from 'mongoose'
 dotenv.config()
 
 const app = express();
+
 
 
 app.use(express.json());
@@ -28,6 +31,13 @@ app.use((err, req, res, next) =>{
     })
 })
 
+mongoose.connect(config.mongodb.cnxStr, config.mongodb.options)
+mongoose.connection.on("connected", () =>{
+    console.log("Conexion a base de datos establecida");
+})
+mongoose.connection.on("error", err =>{
+    console.log(err);
+})
 
 const server = app.listen(8080, () => {
     console.log("Servidor ok en 8080");

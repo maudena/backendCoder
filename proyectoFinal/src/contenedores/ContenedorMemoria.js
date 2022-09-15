@@ -35,7 +35,7 @@ class ContenedorMemoria{
         return newObj
     }
 
-    async update(elem){
+    async actualizar(elem){
 
         const index = this.elementos.findIndex(x => x.id == elem.id)
 

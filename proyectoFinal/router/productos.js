@@ -33,6 +33,15 @@ router.delete("/productos/:id", async (req, res) => {
   }
 });
 
+router.delete("/productos", async(req, res) =>{
+  const admin = true
+  if(admin == true){
+    res.json(await productosApi.deleteAll())
+  } else {
+    throw new Error("Ruta no autorizada");
+  }
+})
+
 router.put("/productos/:id", async (req, res) => {
   const admin = true;
 

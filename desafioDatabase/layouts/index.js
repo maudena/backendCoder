@@ -21,7 +21,7 @@ socket.on("productos", (data) => {
 });
 
 function getTable(data) {
-  return fetch("/views/table.hbs")
+  return fetch("/views/partials/table.hbs")
     .then((res) => res.text())
     .then((plantilla) => {
       const template = Handlebars.compile(plantilla);

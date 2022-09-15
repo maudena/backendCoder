@@ -1,4 +1,4 @@
-import ContenedorArchivo from "../../contenedores/ContenedorArchivo";
+import ContenedorArchivo from "../../contenedores/ContenedorArchivo.js";
 
 class CartArchivo extends ContenedorArchivo{
     constructor(){
