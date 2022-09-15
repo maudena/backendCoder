@@ -23,7 +23,7 @@ routerCart.delete("/carrito/:id", async (req, res) => {
   res.json(await carritosApi.delete(req.params.id))
 });
 
-routerCart.delete("/carrito/", async (req, res) => {
+routerCart.delete("/carrito", async (req, res) => {
   const admin = true
   if(admin == true){
     res.json(await carritosApi.deleteAll())

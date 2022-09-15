@@ -46,7 +46,7 @@ router.put("/productos/:id", async (req, res) => {
   const admin = true;
 
   if (admin == true) {
-    res.json(await productosApi.update(req.body))
+    res.json(await productosApi.actualizar(req.body))
   } else {
     throw new Error("Ruta no autorizada");
   }

@@ -1,3 +1,5 @@
+import dotenv from "dotenv"
+dotenv.config()
 let productosDao;
 let carritosDao;
 
@@ -11,7 +13,7 @@ import ProdFirebase from "./productos/ProdFirebase.js";
 import CartFirebase from "./carritos/CartFirebase.js";
 
 
-switch ("mongo") {
+switch (process.env.PERS) {
   case "json":
 
     productosDao = new ProdArchivo
