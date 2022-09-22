@@ -1,76 +1,140 @@
-const express = require("express");
+/*============================[Modulos]============================*/
+import express from "express";
+import cookieParser from "cookie-parser";
+import session from "express-session";
+import exphbs from "express-handlebars";
+import path from "path";
+import User from "./models/User.js";
+import bcrypt from "bcrypt";
+import passport from "passport";
+import { Strategy } from "passport-local";
+const LocalStrategy = Strategy;
+import "./db/config.js";
+import { auth } from "./middlewares/auth.js";
+
 const app = express();
-const handlebars = require("express-handlebars");
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
 
-app.engine(
-  "hbs",
-  handlebars.engine({
-    extname: "hbs",
-    defaultLayout: "index.hbs",
-    layoutsDir: __dirname + "/views/layouts"
-  })
-);
-app.set("view engine", "hbs");
-app.set("views", "./views");
+/*============================[Middlewares]============================*/
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("./public"));
+/*----------- Session -----------*/
+app.use(cookieParser());
 app.use(
   session({
-    store: MongoStore.create({
-      mongoUrl:
-        "mongodb+srv://MauriDenardi:coderhouse@cluster0.e1zw3we.mongodb.net/?retryWrites=true&w=majority",
-    }),
-    secret: "coder",
+    secret: "1234567890!@#$%^&*()",
     resave: false,
     saveUninitialized: false,
-    cookie:{
-        maxAge: 6000
-    }
+    cookie: {
+      maxAge: 20000, //20 seg
+    },
   })
 );
 
-const auth = (req, res, next) =>{
-    if(req.session.user) return next()
-    res.redirect("http://localhost:8080/login")
-}
+app.use(passport.initialize());
+app.use(passport.session());
 
-app.get("/login", (req,res) =>{
-    res.render("login")
-})
-app.get("/", auth, (req, res) =>{
-    res.render("main",{
-        username: req.session.user
-    })
-})
+passport.use(
+  new LocalStrategy((username, password, done) => {
+    User.findOne({ username }, (err, user) => {
+      if (err) console.log(err);
+      if (!user) return done(null, false);
+      bcrypt.compare(password, user.password, (err, isMatch) => {
+        if (err) console.log(err);
+        if (isMatch) return done(null, user);
+        return done(null, false);
+      });
+    });
+  })
+);
 
-app.get("/logout", (req, res) =>{
-    res.render("logout",{
-        username: req.session.user
-    })
-    req.session.destroy(error =>{
-        if(error){
-            return res.json({status: "Logout Error", body: error})
-        }
-        
-    })
-})
+passport.serializeUser((user, done) => {
+  done(null, user._id);
+});
 
-app.post("/login", (req, res) =>{
-    const username = req.body.user
-    if(username == "mauri"){
-        req.session.user = username
-        res.redirect("http://localhost:8080")
+passport.deserializeUser(async (id, done) => {
+  const user = await User.findById(id);
+  return done(null, user);
+});
+
+/*----------- Motor de plantillas -----------*/
+app.set("views", path.join(path.dirname(""), "./views"));
+app.engine(
+  ".hbs",
+  exphbs.engine({
+    defaultLayout: "index",
+    layoutsDir: path.join(app.get("views"), "layouts"),
+    extname: ".hbs",
+  })
+);
+app.set("view engine", ".hbs");
+
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+/*============================[Rutas]============================*/
+
+app.get("/", (req, res) => {
+  if (req.session.username) {
+    res.redirect("/datos");
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+app.get("/login-error", (req, res) => {
+  res.render("login-error");
+});
+
+app.post("/login", passport.authenticate("local", {failureRedirect: "login-error"}),(req, res) => {
+    res.redirect("/datos");
+  }
+);
+
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+
+app.post("/register", (req, res) => {
+  const { username, password} = req.body;
+  User.findOne({ username }, async (err, user) => {
+    if (err) console.log(err);
+    if (user) res.render("register-error");
+    if (!user) {
+      const hashedPassword = await bcrypt.hash(password, 8);
+      const newUser = new User({
+        username,
+        password: hashedPassword,
+      });
+      await newUser.save();
+      res.redirect("/login");
     }
-    res.send("Error de logueo, intente nuevamente")
-})
-
-
-
-const server = app.listen(8080, () => {
-    console.log("Servidor ok en 8080");
   });
-  server.on("error", (error) => `Error en el servidor ${error}`);
+});
+
+app.get("/datos", auth, async (req, res) => {
+  const datosUsuario = await User.findById(req.user._id).lean();
+  res.render("datos", {
+    datos: datosUsuario,
+  });
+});
+
+app.get("/logout", (req, res) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
+
+/*============================[Servidor]============================*/
+const PORT = 8080;
+const server = app.listen(PORT, () => {
+  console.log(`Servidor escuchando en puerto ${PORT}`);
+});
+server.on("error", (error) => {
+  console.error(`Error en el servidor ${error}`);
+});
