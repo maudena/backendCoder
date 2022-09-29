@@ -4,13 +4,16 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import exphbs from "express-handlebars";
 import path from "path";
+import passport from "passport";
 import User from "./models/User.js";
 import bcrypt from "bcrypt";
-import passport from "passport";
 import { Strategy } from "passport-local";
 const LocalStrategy = Strategy;
 import "./db/config.js";
-import { auth } from "./middlewares/auth.js";
+import { router } from "./routes/routes.js";
+import dotenv from "dotenv"
+dotenv.config()
+
 
 const app = express();
 
@@ -69,66 +72,7 @@ app.set("view engine", ".hbs");
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-
-/*============================[Rutas]============================*/
-
-app.get("/", (req, res) => {
-  if (req.session.username) {
-    res.redirect("/datos");
-  } else {
-    res.redirect("/login");
-  }
-});
-
-app.get("/login", (req, res) => {
-  res.render("login");
-});
-
-app.get("/login-error", (req, res) => {
-  res.render("login-error");
-});
-
-app.post("/login", passport.authenticate("local", {failureRedirect: "login-error"}),(req, res) => {
-    res.redirect("/datos");
-  }
-);
-
-app.get("/register", (req, res) => {
-  res.render("register");
-});
-
-app.post("/register", (req, res) => {
-  const { username, password} = req.body;
-  User.findOne({ username }, async (err, user) => {
-    if (err) console.log(err);
-    if (user) res.render("register-error");
-    if (!user) {
-      const hashedPassword = await bcrypt.hash(password, 8);
-      const newUser = new User({
-        username,
-        password: hashedPassword,
-      });
-      await newUser.save();
-      res.redirect("/login");
-    }
-  });
-});
-
-app.get("/datos", auth, async (req, res) => {
-  const datosUsuario = await User.findById(req.user._id).lean();
-  res.render("datos", {
-    datos: datosUsuario,
-  });
-});
-
-app.get("/logout", (req, res) => {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("/");
-  });
-});
+app.use("/", router)
 
 /*============================[Servidor]============================*/
 const PORT = 8080;
